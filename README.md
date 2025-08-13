@@ -1,278 +1,157 @@
-# Frappe Linter Template
+# __PROJECT_NAME__
 
-A comprehensive template repository for Frappe-based projects with pre-configured linting, formatting, code quality tools, and automated CI/CD pipeline. This template ensures every custom Frappe app follows the same high-quality standards and best practices.
+__PROJECT_DESCRIPTION__
 
-## 🚀 Features
 
-### 🔧 **Code Quality & Linting**
-- **Pre-commit Hooks**: Automated code quality checks before commits
-- **Multi-language Support**: Python, JavaScript, Vue, SCSS, and more
-- **Code Formatting**: Consistent code style with Ruff and Prettier
-- **Comprehensive Linting**: Ruff, ESLint, and TypeScript support
-- **Type Checking**: MyPy integration for Python type safety
+## 📚 Documentation
 
-### 🛡️ **Security & Safety**
-- **Semgrep Integration**: Security-focused static analysis
-- **Dependency Scanning**: Automated vulnerability detection with pip-audit
-- **Bandit Security**: Python security linting
-- **Safety Checks**: Dependency vulnerability scanning
+- [📖 Getting Started Guide](./docs/GETTING_STARTED.md) - Quick setup and development guide
 
-### 🔄 **CI/CD Pipeline**
-- **GitHub Actions**: Comprehensive automated testing and quality checks
-- **Semantic Commits**: Enforced conventional commit format
-- **Multi-version Testing**: Python 3.8-3.13 compatibility
-- **Build Verification**: Automated package and asset building
-- **Coverage Reporting**: Code coverage tracking and reporting
-
-### 📚 **Documentation & Standards**
-- **Documentation Templates**: Ready-to-use documentation structure
-- **Frappe Guidelines**: Comprehensive Frappe app development standards
-- **Development Tools**: VS Code settings and recommended extensions
-- **Contributing Guidelines**: Clear contribution and development workflows
-
-## 📋 Prerequisites
-
-- **Python 3.8+** (supports up to 3.13)
-- **Node.js 16+** (recommended: 22+)
-- **Git** with conventional commits
-- **Frappe Framework 14+**
-
-## 🛠️ Quick Start
-
-### 1. Use This Template
+## ⚡ Quick Start
 
 ```bash
-# Create a new repository using this template
-gh repo create your-project-name --template dhwani-rural/frappe-linter-template
-
-# Or clone and customize
-git clone https://github.com/dhwani-rural/frappe-linter-template.git your-project-name
-cd your-project-name
-```
-
-### 2. Install Dependencies
-
-```bash
-# Install Python dependencies
-pip install -e ".[dev]"
+# Clone the repository
+git clone https://github.com/__GITHUB_REPOSITORY__.git
+cd __REPO_NAME__
 
 # Install pre-commit hooks
+pip install pre-commit
 pre-commit install
 
-# Install Node.js dependencies (if using frontend tools)
-npm install
+# Start development
+bench start
 ```
 
-### 3. Customize Configuration
+## 🛡️ Code Quality & Pre-commit Hooks
 
-1. Update `pyproject.toml` with your project details
-2. Modify `.pre-commit-config.yaml` for your specific needs
-3. Update GitHub Actions in `.github/workflows/`
-4. Customize documentation templates
+This project enforces strict code quality standards using automated tools:
 
-## 📁 Project Structure
+### Pre-commit Hooks Enabled
+- **Python Code Formatting**: `black`, `isort`, `autoflake`
+- **Security Scanning**: `bandit`, `safety`
+- **Code Quality**: `flake8`, `mypy`, `pylint`
+- **Frappe Standards**: Custom hooks for Frappe-specific patterns
+- **Commit Standards**: Conventional commits with `commitlint`
+- **Documentation**: Automatic documentation generation
 
-```
-frappe-linter-template/
-├── .github/
-│   └── workflows/          # GitHub Actions CI/CD
-│       ├── ci.yml         # Comprehensive CI pipeline
-│       └── linters.yml    # Linting workflow
-├── .vscode/               # VS Code settings
-├── docs/                  # Documentation templates
-│   ├── CONTRIBUTING.md    # Contribution guidelines
-│   ├── CHANGELOG.md       # Version history template
-│   ├── CODE_OF_CONDUCT.md # Community standards
-│   ├── DEVELOPMENT.md     # Development setup guide
-│   └── FRAPPE_APP_GUIDELINES.md # Frappe-specific standards
-├── templates/             # Project templates
-├── scripts/               # Utility scripts
-├── .pre-commit-config.yaml # Pre-commit configuration
-├── pyproject.toml         # Python project configuration
-├── package.json           # Node.js dependencies
-└── README.md             # This file
+### Installation
+```bash
+# Install pre-commit
+pip install pre-commit
+
+# Install hooks
+pre-commit install
+
+# Run all hooks manually
+pre-commit run --all-files
 ```
 
-## 🔧 Configuration
+### Commit Standards
+We follow [Conventional Commits](https://www.conventionalcommits.org/) specification:
 
-### Pre-commit Hooks
+```bash
+# Format: type(scope): description
+feat(user): add user authentication module
+fix(api): resolve data validation issue
+docs(readme): update installation instructions
+test(auth): add unit tests for login flow
+```
 
-The template includes the following pre-commit hooks:
+**Allowed commit types:**
+- `feat` - New features
+- `fix` - Bug fixes
+- `docs` - Documentation changes
+- `style` - Code style improvements
+- `refactor` - Code refactoring
+- `test` - Adding/updating tests
+- `chore` - Maintenance tasks
+- `perf` - Performance improvements
+- `ci` - CI/CD changes
+- `build` - Build system changes
+- `revert` - Reverting changes
+- `deprecate` - Deprecation decisions
 
-- **trailing-whitespace**: Removes trailing whitespace
-- **check-merge-conflict**: Detects merge conflict markers
-- **check-ast**: Validates Python syntax
-- **check-json/toml/yaml**: Validates configuration files
-- **debug-statements**: Removes debug statements
-- **ruff**: Python linting and formatting
-- **prettier**: Code formatting for JS/CSS
-- **eslint**: JavaScript linting
 
-### CI/CD Pipeline
+## 📋 Requirements
 
-The comprehensive CI workflow includes:
+- **Python**: 3.8+ (3.13 recommended)
+- **Node.js**: 18+ (22 recommended)
+- **Frappe Framework**: Latest stable version
+- **Database**: MariaDB 10.6+ or PostgreSQL 13+
 
-- **Semantic Commits**: Validates commit message format
-- **Security Scanning**: Semgrep and dependency vulnerability checks
-- **Code Quality**: Pre-commit hooks and linting
-- **Testing**: Multi-version Python testing with coverage
-- **Build Verification**: Package and asset building
-- **Dependency Management**: Outdated dependency detection
+## 🚀 Development Workflow
 
-### Customization
+1. **Create Feature Branch**
+   ```bash
+   git checkout -b feat/your-feature-name
+   ```
 
-Edit configuration files to:
-- Add/remove hooks in `.pre-commit-config.yaml`
-- Modify linting rules in `pyproject.toml`
-- Adjust CI workflow in `.github/workflows/ci.yml`
-- Update VS Code settings in `.vscode/`
+2. **Make Changes**
+   - Follow code quality standards
+   - Write tests for new features
+   - Update documentation
 
-## 🛡️ Security Features
+3. **Commit Changes**
+   ```bash
+   git add .
+   git commit -m "feat(module): add new feature description"
+   ```
 
-### Automated Security Checks
+4. **Pre-commit Hooks Run Automatically**
+   - Code formatting
+   - Security scanning
+   - Quality checks
+   - Documentation updates
 
-- **Semgrep**: Static analysis with Frappe-specific rules
-- **pip-audit**: Python dependency vulnerability scanning
-- **Bandit**: Python security linting
-- **Safety**: Additional dependency security checks
-
-### Security Best Practices
-
-- Regular dependency updates
-- Automated vulnerability scanning
-- Security-focused linting rules
-- Comprehensive error handling
-
-## 📚 Documentation Templates
-
-The `docs/` directory contains comprehensive templates for:
-
-- **API Documentation**: Standardized API reference format
-- **Contributing Guidelines**: Clear contribution workflows
-- **Changelog Template**: Version history tracking
-- **Code of Conduct**: Community standards
-- **Development Setup Guide**: Environment configuration
-- **Frappe App Guidelines**: Frappe-specific best practices
-
-## 🎯 Best Practices
-
-### Code Quality
-- Run `pre-commit run --all-files` before pushing
-- Keep commits atomic and well-described using conventional format
-- Follow the established code style and linting rules
-- Write comprehensive tests with good coverage
-
-### Documentation
-- Update README.md for project-specific information
-- Maintain up-to-date API documentation
-- Document breaking changes in CHANGELOG.md
-- Follow Frappe app development guidelines
-
-### Development Workflow
-1. Create feature branch from main
-2. Make changes with proper commit messages
-3. Run pre-commit hooks locally
-4. Create pull request with description
-5. Ensure CI passes before merging
-6. Follow semantic versioning
-
-### Security
-- Regularly update dependencies
-- Address security warnings promptly
-- Follow secure coding practices
-- Use automated security scanning
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes following the coding standards
-4. Run pre-commit hooks (`pre-commit run --all-files`)
-5. Commit with conventional format (`git commit -m "feat: add amazing feature"`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Submit a pull request
-
-See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for detailed guidelines.
+5. **Push and Create PR**
+   ```bash
+   git push origin feat/your-feature-name
+   ```
 
 ## 🧪 Testing
 
-### Running Tests
-
 ```bash
 # Run all tests
-pytest
+bench --site test_site run-tests
+
+# Run specific app tests
+bench --site test_site run-tests --app your_app_name
 
 # Run with coverage
-pytest --cov=frappe_linter_template
-
-# Run specific test categories
-pytest -m unit
-pytest -m integration
-pytest -m "not slow"
+bench --site test_site run-tests --coverage
 ```
 
-### Test Coverage
+## 📦 Installation
 
-The template includes comprehensive test coverage reporting:
-- HTML coverage reports
-- XML coverage for CI integration
-- Coverage thresholds and exclusions
-- Integration with Codecov
+### Option 1: Using Frappe CLI (Recommended)
+```bash
+# Create new site
+bench new-site your-site-name
 
-## 🔄 CI/CD Pipeline
+# Install the app
+bench --site your-site-name install-app __APP_NAME__
+```
 
-### Automated Checks
+### Option 2: Development Setup
+```bash
+# Get the app
+bench get-app __APP_NAME__ https://github.com/__GITHUB_REPOSITORY__.git
 
-The CI pipeline runs on every pull request and push:
+# Create new site
+bench new-site development.localhost
 
-1. **Semantic Commits**: Validates commit message format
-2. **Security Scanning**: Semgrep and dependency checks
-3. **Code Quality**: Pre-commit hooks and linting
-4. **Testing**: Multi-version Python testing
-5. **Build Verification**: Package and asset building
-6. **Dependency Management**: Outdated dependency detection
+# Install app
+bench --site development.localhost install-app __APP_NAME__
 
-### Pipeline Features
+# Start development server
+bench start
+```
 
-- **Concurrency Control**: Prevents multiple workflows from running simultaneously
-- **Caching**: Optimized dependency caching for faster builds
-- **Artifact Management**: Uploads reports and build artifacts
-- **Graceful Degradation**: Handles missing configurations gracefully
-- **Matrix Testing**: Tests across multiple Python versions
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-- **Issues**: [GitHub Issues](https://github.com/dhwani-rural/frappe-linter-template/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/dhwani-rural/frappe-linter-template/discussions)
-- **Documentation**: [Wiki](https://github.com/dhwani-rural/frappe-linter-template/wiki)
-- **CI/CD Status**: [GitHub Actions](https://github.com/dhwani-rural/frappe-linter-template/actions)
-
-## 🔄 Updates
-
-This template is regularly updated with:
-- Latest tool versions and security patches
-- New best practices and standards
-- Enhanced CI/CD pipeline features
-- Improved documentation and guidelines
-- Frappe framework compatibility updates
-
-Check the [CHANGELOG.md](docs/CHANGELOG.md) for recent updates.
-
-## 🎉 Benefits
-
-Using this template ensures:
-
-- **Consistency**: Every app follows the same structure and standards
-- **Quality**: Automated checks maintain high code quality
-- **Security**: Built-in security scanning and best practices
-- **Maintainability**: Standardized patterns and documentation
-- **Scalability**: Robust CI/CD pipeline supports team growth
-- **Compliance**: Follows industry best practices and standards
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
 
 ---
 
-**Made with ❤️ by [Dhwani Rural Information Systems](https://dhwani.org)**
+**Powered by [Dhwani RIS](https://dhwaniris.in)**
