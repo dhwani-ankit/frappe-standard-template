@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, develop, development, master ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, develop, development, master ]
   workflow_dispatch:
 
 permissions:
