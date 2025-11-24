@@ -1,28 +1,33 @@
-# Pull Request
+<!--
 
-## 📝 Description
-<!-- Brief description of changes -->
+Some key notes before you open a PR:
 
-## 🔗 Related
-- Closes #<!-- issue number -->
-- Related to #<!-- issue number -->
+ 1. Select which branch should this PR be merged in?
+ 2. PR name follows [convention](http://karma-runner.github.io/4.0/dev/git-commit-msg.html)
+ 3. All tests pass locally, UI and Unit tests
+ 4. All business logic and validations must be on the server-side
+ 5. Update necessary Documentation
+ 6. Put `closes #XXXX` in your comment to auto-close the issue that your PR fixes
 
----
 
-## 🔧 DevOps Checklist (AUTOMATED - DO NOT EDIT)
+Also, if you're new here
 
-> ⚠️ **This section is automatically managed by DevOps Bot. Any manual edits will be overwritten.**
+- Documentation Guidelines => https://github.com/frappe/erpnext/wiki/Updating-Documentation
 
-The DevOps Checklist will appear here automatically when the PR is created. It tracks:
-- CI/CD Pipeline status
-- Staging Deployment
-- Security Scans
-- Code Coverage
-- E2E Tests
-- Breaking Changes
+- Contribution Guide => https://github.com/frappe/frappe/blob/develop/.github/CONTRIBUTING.md
 
-**Do not edit this section manually.**
+- Pull Request Checklist => https://github.com/frappe/erpnext/wiki/Pull-Request-Checklist
 
----
+-->
 
-**Note**: All QC Plan checks are automatically verified by bots. No manual checklist needed.
+> Please provide enough information so that others can review your pull request:
+
+<!-- You can skip this if you're fixing a typo or updating existing documentation -->
+
+> Explain the **details** for making this change. What existing problem does the pull request solve?
+
+<!-- Example: When "Adding a function to do X", explain why it is necessary to have a way to do X. -->
+
+> Screenshots/GIFs
+
+<!-- Add images/recordings to better visualize the change: expected/current behavior -->
