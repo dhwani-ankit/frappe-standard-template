@@ -1,0 +1,145 @@
+name: QA Certification Bot
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  check_suite:
+    types: [completed]
+  deployment_status:
+  workflow_run:
+    workflows: ["E2E Tests", "Staging Deployment"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR Number'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: read
+  deployments: read
+
+jobs:
+  qa-certification-check:
+    name: QA Certification Bot
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get PR and QA Status
+        id: qa-status
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = context.payload.pull_request?.number || 
+                            (context.payload.inputs?.pr_number ? parseInt(context.payload.inputs.pr_number) : null);
+            
+            if (!prNumber) {
+              core.setFailed('PR number not found');
+              return;
+            }
+            
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+            });
+            
+            // Check staging deployment
+            const deployments = await github.rest.repos.listDeployments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: pr.data.head.ref,
+            });
+            
+            const stagingDeployment = deployments.data.find(d => 
+              d.environment === 'staging' || d.environment === 'uat'
+            );
+            
+            // Check test status
+            const checks = await github.rest.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: pr.data.head.sha,
+            });
+            
+            const testChecks = checks.data.check_runs.filter(check => 
+              check.name.includes('test') || 
+              check.name.includes('e2e') ||
+              check.name.includes('E2E')
+            );
+            
+            const allTestsPassed = testChecks.length > 0 && testChecks.every(c => 
+              c.status === 'completed' && c.conclusion === 'success'
+            );
+            
+            core.setOutput('pr_number', prNumber.toString());
+            core.setOutput('has_staging_deployment', stagingDeployment ? 'true' : 'false');
+            core.setOutput('all_tests_passed', allTestsPassed ? 'true' : 'false');
+            core.setOutput('test_count', testChecks.length.toString());
+
+      - name: Post QA Certification Status
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = parseInt('${{ steps.qa-status.outputs.pr_number }}');
+            const hasStaging = '${{ steps.qa-status.outputs.has_staging_deployment }}' === 'true';
+            const allTestsPassed = '${{ steps.qa-status.outputs.all_tests_passed }}' === 'true';
+            const testCount = parseInt('${{ steps.qa-status.outputs.test_count }}' || '0');
+            
+            // Get existing comments
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+            
+            const existingComment = comments.data.find(c => 
+              c.user.type === 'Bot' && 
+              c.body.includes('🤖 QA Certification Bot')
+            );
+            
+            const comment = `## 🤖 QA Certification Bot
+
+| Check | Status | Details |
+|-------|--------|---------|
+| **2.1** Staging deployment | ${hasStaging ? '✅' : '⏳'} | ${hasStaging ? 'Deployed to staging' : 'Pending deployment'} |
+| **2.2** Test execution | ${allTestsPassed ? '✅' : '⏳'} | ${testCount > 0 ? `${testCount} test suites` : 'No tests found'} |
+| **2.5** Regression testing | ${allTestsPassed ? '✅' : '⏳'} | ${allTestsPassed ? 'E2E tests passed' : 'Pending'} |
+
+${hasStaging && allTestsPassed ? '✅ **QA Certification Automated Checks Complete**' : '⏳ **QA Certification In Progress**'}
+
+**QC Plan Level 2**: ${hasStaging && allTestsPassed ? '✅ Complete' : '⏳ In Progress'}
+
+---
+*Automated by QA Certification Bot*`;
+            
+            try {
+              if (existingComment) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: existingComment.id,
+                  body: comment
+                });
+                console.log(`✅ Updated QA Certification Bot comment on PR #${prNumber}`);
+              } else {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  body: comment
+                });
+                console.log(`✅ Posted QA Certification Bot comment on PR #${prNumber}`);
+              }
+            } catch (error) {
+              console.log(`⚠️ Error posting comment: ${error.message}`);
+            }
+

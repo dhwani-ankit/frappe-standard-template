@@ -1,0 +1,171 @@
+name: Coding Standards Bot
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  pull_request_review:
+    types: [submitted, dismissed]
+  check_suite:
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR Number'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: read
+  statuses: read
+
+jobs:
+  coding-standards-check:
+    name: Coding Standards Bot
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get PR and Check Status
+        id: check-status
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = context.payload.pull_request?.number || 
+                            (context.payload.inputs?.pr_number ? parseInt(context.payload.inputs.pr_number) : null);
+            
+            if (!prNumber) {
+              core.setFailed('PR number not found');
+              return;
+            }
+            
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+            });
+            
+            // Get all check runs
+            const checks = await github.rest.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: pr.data.head.sha,
+            });
+            
+            // Filter coding standards related checks
+            const codingChecks = checks.data.check_runs.filter(check => 
+              check.name.includes('pre-commit') ||
+              check.name.includes('lint') ||
+              check.name.includes('format') ||
+              check.name.includes('Semgrep') ||
+              check.name.includes('ruff') ||
+              check.name.includes('eslint')
+            );
+            
+            const allPassed = codingChecks.length > 0 && codingChecks.every(c => 
+              c.status === 'completed' && c.conclusion === 'success'
+            );
+            const someFailed = codingChecks.some(c => 
+              c.status === 'completed' && c.conclusion === 'failure'
+            );
+            
+            // Get review status
+            const reviews = await github.rest.pulls.listReviews({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+            });
+            
+            const approvals = reviews.data.filter(r => r.state === 'APPROVED');
+            const hasApproval = approvals.length > 0;
+            
+            core.setOutput('pr_number', prNumber.toString());
+            core.setOutput('all_passed', allPassed ? 'true' : 'false');
+            core.setOutput('some_failed', someFailed ? 'true' : 'false');
+            core.setOutput('has_approval', hasApproval ? 'true' : 'false');
+            core.setOutput('checks_count', codingChecks.length.toString());
+            
+            return {
+              prNumber,
+              allPassed,
+              someFailed,
+              hasApproval,
+              checksCount: codingChecks.length
+            };
+
+      - name: Post Coding Standards Status
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = parseInt('${{ steps.check-status.outputs.pr_number }}');
+            const allPassed = '${{ steps.check-status.outputs.all_passed }}' === 'true';
+            const someFailed = '${{ steps.check-status.outputs.some_failed }}' === 'true';
+            const hasApproval = '${{ steps.check-status.outputs.has_approval }}' === 'true';
+            const checksCount = parseInt('${{ steps.check-status.outputs.checks_count }}' || '0');
+            
+            // Get existing comments
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+            
+            const existingComment = comments.data.find(c => 
+              c.user.type === 'Bot' && 
+              c.body.includes('🤖 Coding Standards Bot')
+            );
+            
+            let status = '⏳';
+            let statusText = 'In Progress';
+            
+            if (allPassed && checksCount > 0) {
+              status = '✅';
+              statusText = 'All Checks Passed';
+            } else if (someFailed) {
+              status = '❌';
+              statusText = 'Some Checks Failed';
+            }
+            
+            const comment = `## 🤖 Coding Standards Bot
+
+${status} **Coding Standards**: ${statusText}
+
+| Check | Status |
+|-------|--------|
+| **Pre-commit hooks** | ${allPassed ? '✅ Passed' : '⏳ Pending'} |
+| **Linting** | ${allPassed ? '✅ Passed' : '⏳ Pending'} |
+| **Code formatting** | ${allPassed ? '✅ Passed' : '⏳ Pending'} |
+| **Security scanning** | ${allPassed ? '✅ Passed' : '⏳ Pending'} |
+
+**QC Plan Level 1.3**: ${allPassed ? '✅ Complete' : '⏳ In Progress'}
+
+---
+*Automated by Coding Standards Bot*`;
+            
+            try {
+              if (existingComment) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: existingComment.id,
+                  body: comment
+                });
+                console.log(`✅ Updated Coding Standards Bot comment on PR #${prNumber}`);
+              } else {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  body: comment
+                });
+                console.log(`✅ Posted Coding Standards Bot comment on PR #${prNumber}`);
+              }
+            } catch (error) {
+              console.log(`⚠️ Error posting comment: ${error.message}`);
+            }
+
