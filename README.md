@@ -14,6 +14,9 @@ __PROJECT_DESCRIPTION__
 - [📝 Release Notes Troubleshooting](./docs/RELEASE_NOTES_TROUBLESHOOTING.md) - Fix release notes issues
 - [🤖 How to Run Bots](./docs/HOW_TO_RUN_BOTS.md) - Guide to test and run automated bots
 - [⚡ Bot Quick Start](./docs/BOT_QUICK_START.md) - 2-minute quick test guide
+- [🎯 GitHub Integrations](./docs/GITHUB_INTEGRATIONS.md) - All Contributors, Kodiak, Codecov setup
+- [⚡ Integrations Quick Setup](./docs/INTEGRATIONS_SETUP.md) - 5-minute setup guide
+- [🎯 GitHub Integrations](./docs/GITHUB_INTEGRATIONS.md) - All Contributors, Kodiak, Codecov setup
 
 ## ⚡ Quick Start
 
@@ -204,6 +207,55 @@ All QC Plan checks are automatically verified by bots - no manual checkboxes nee
 **No manual checklist needed** - bots handle everything!
 
 See [Bot Quick Start](./docs/BOT_QUICK_START.md) to test them.
+
+## 🎯 GitHub Integrations
+
+### All Contributors Bot
+
+Recognizes all contributors, not just code contributors. Automatically updates README with contributors table.
+
+**Usage**: Comment on any issue or PR:
+```
+@all-contributors please add @username for code, docs, design
+```
+
+**Installation**: Install the [All Contributors GitHub App](https://github.com/apps/allcontributors)
+
+**Configuration**: See [`.all-contributorsrc`](.all-contributorsrc)
+
+### Kodiak Auto-Merge Bot
+
+Automatically updates and merges pull requests when all checks pass.
+
+**Features**:
+- ✅ Auto-merge when all checks pass
+- ✅ Auto-update PR branch with base branch
+- ✅ Configurable merge methods (merge, squash, rebase)
+- ✅ Smart label-based control
+
+**Installation**: Install the [Kodiak GitHub App](https://github.com/apps/kodiak)
+
+**Configuration**: See [`.kodiak.toml`](.kodiak.toml)
+
+**Usage**: Add `auto-merge` label to PR when ready
+
+### Codecov Coverage
+
+Code coverage reporting and analysis for your codebase.
+
+**Features**:
+- 📊 Detailed coverage reports
+- 💬 PR comments with coverage changes
+- 📈 Coverage trends over time
+- 🎯 Coverage targets and thresholds
+
+**Installation**: 
+1. Install the [Codecov GitHub App](https://github.com/apps/codecov)
+2. Add `CODECOV_TOKEN` to repository secrets (optional, for private repos)
+
+**Configuration**: Coverage reports are automatically uploaded from CI workflows
+
+See [Codecov workflow](.github/workflows/codecov.yml) for details.
 
 ## 🚀 Release Process
 

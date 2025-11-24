@@ -63,3 +63,11 @@ e2e-results.json
 e2e-results.xml
 playwright-report/
 test-results/
+
+# Coverage reports
+.coverage
+coverage.xml
+htmlcov/
+*.cover
+.hypothesis/
+.pytest_cache/

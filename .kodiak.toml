@@ -1,0 +1,69 @@
+# Kodiak Configuration
+# Kodiak automatically updates and merges pull requests
+# Documentation: https://kodiakhq.com/docs/config
+
+version = 1
+
+# Auto-merge settings
+[merge]
+# Automatically merge PRs when all checks pass
+auto_merge = true
+
+# Merge method: "merge", "squash", or "rebase"
+method = "squash"
+
+# Delete branch after merge
+delete_branch_after_merge = true
+
+# Update PR branch with base branch before merging
+update_branch = true
+
+# Labels that enable auto-merge
+[merge.labels]
+# PRs with these labels will be auto-merged when ready
+auto_merge = ["auto-merge", "ready-to-merge"]
+
+# Labels that block auto-merge
+block = ["do-not-merge", "wip", "work-in-progress"]
+
+# PR requirements
+[merge.requirements]
+# Number of required approvals
+required_approvals = 1
+
+# Require all CI checks to pass
+required_status_checks = true
+
+# Require PR to be up to date with base branch
+up_to_date_branch = true
+
+# Auto-update settings
+[update]
+# Automatically update PR branch with base branch
+enabled = true
+
+# Update frequency: "hourly", "daily", or "on_schedule"
+schedule = "hourly"
+
+# Update when base branch changes
+on_base_branch_change = true
+
+# Priority settings
+[priority]
+# Labels that give high priority
+high = ["priority:high", "urgent"]
+
+# Labels that give low priority
+low = ["priority:low"]
+
+# Ignore settings
+[ignore]
+# Ignore PRs with these labels
+labels = ["draft", "wip", "work-in-progress"]
+
+# Ignore PRs from these authors (useful for bots)
+authors = []
+
+# Ignore PRs targeting these branches
+branches = []
+
