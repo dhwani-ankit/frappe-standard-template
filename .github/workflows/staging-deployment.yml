@@ -149,7 +149,7 @@ jobs:
               description: 'Deployment failed'
             });
 
-      - name: Comment on PR
+      - name: Staging Deployment Bot Comment
         if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
         uses: actions/github-script@v7
         with:
@@ -159,31 +159,56 @@ jobs:
             const stagingUrl = '${{ secrets.STAGING_URL || "https://staging.example.com" }}';
             const commitSha = '${{ steps.deployment-info.outputs.commit_sha }}';
             
-            const comment = `## 🚀 Staging Deployment Complete
-            
-            **Deployment Details:**
-            - Environment: Staging
-            - Commit: \`${commitSha.substring(0, 7)}\`
-            - Deployed by: @${context.actor}
-            - Deployment Time: ${{ steps.deployment-info.outputs.deployment_time }}
-            
-            **Access:**
-            - Staging URL: ${stagingUrl}
-            
-            **Next Steps:**
-            - [ ] Verify deployment in staging environment
-            - [ ] Execute test cases (Level 2.2)
-            - [ ] Complete QA Certification (Level 2)
-            
-            ---
-            *This deployment satisfies QC Plan Level 2.1 requirement*`;
-            
-            await github.rest.issues.createComment({
+            // Get existing comments
+            const comments = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: prNumber,
-              body: comment
             });
+            
+            const existingComment = comments.data.find(c => 
+              c.user.type === 'Bot' && 
+              c.body.includes('🤖 Staging Deployment Bot')
+            );
+            
+            const comment = `## 🤖 Staging Deployment Bot
+
+✅ **Staging Deployment**: Complete
+
+| Detail | Value |
+|--------|-------|
+| **Environment** | Staging |
+| **Commit** | \`${commitSha.substring(0, 7)}\` |
+| **Deployed by** | @${context.actor} |
+| **Deployment Time** | ${{ steps.deployment-info.outputs.deployment_time }} |
+| **Staging URL** | ${stagingUrl} |
+
+**QC Plan Level 2.1**: ✅ Complete
+
+---
+*Automated by Staging Deployment Bot*`;
+            
+            try {
+              if (existingComment) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: existingComment.id,
+                  body: comment
+                });
+                console.log(`✅ Updated Staging Deployment Bot comment`);
+              } else {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  body: comment
+                });
+                console.log(`✅ Posted Staging Deployment Bot comment`);
+              }
+            } catch (error) {
+              console.log(`⚠️ Error posting comment: ${error.message}`);
+            }
 
       - name: Generate deployment summary
         run: |

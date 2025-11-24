@@ -2,9 +2,11 @@ name: QC Plan Bot - Automated Checks
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
   pull_request_review:
-    types: [submitted]
+    types: [submitted, dismissed]
+  check_suite:
+    types: [completed]
   workflow_dispatch:
     inputs:
       pr_number:
@@ -162,6 +164,19 @@ ${hasApproval && unresolvedComments.length === 0 && allChecksPassed ? '✅ **Lev
             core.setOutput('level2_status', JSON.stringify(level2Status));
             
             try {
+              // Find or update existing Level 2 comment
+              const comments = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+              });
+              
+              const existingComment = comments.data.find(c => 
+                c.user.type === 'Bot' && 
+                c.body.includes('🤖 QC Plan Bot') &&
+                c.body.includes('Level 2: QA Certification')
+              );
+              
               const comment = `## 🤖 QC Plan Bot - Level 2: QA Certification
 
 | Check | Status | Details |
@@ -177,14 +192,23 @@ ${hasStagingDeployment && allTestsPassed ? '✅ **Level 2 Automated Checks Compl
 ---
 *Automated by QC Plan Bot*`;
               
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: prNumber,
-                body: comment
-              });
-              
-              console.log(`✅ Posted Level 2 status comment on PR #${prNumber}`);
+              if (existingComment) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: existingComment.id,
+                  body: comment
+                });
+                console.log(`✅ Updated Level 2 status comment on PR #${prNumber}`);
+              } else {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  body: comment
+                });
+                console.log(`✅ Posted Level 2 status comment on PR #${prNumber}`);
+              }
             } catch (error) {
               console.log(`⚠️ Error posting comment: ${error.message}`);
             }
