@@ -1,0 +1,146 @@
+{
+  "$schema": "https://raw.githubusercontent.com/all-contributors/all-contributors-cli/master/.all-contributorsrc.schema.json",
+  "projectName": "__PROJECT_NAME__",
+  "projectOwner": "__GITHUB_OWNER__",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": true,
+  "commitConvention": "conventional",
+  "contributorsPerLine": 7,
+  "contributorsSortAlphabetically": true,
+  "badgeTemplate": "<img src=\"https://img.shields.io/badge/all_contributors-<%= contributors.length %>-orange.svg?style=flat-square\" alt=\"All Contributors\" />",
+  "contributorTemplate": "<a href=\"<%= contributor.profile %>\"><img src=\"<%= contributor.avatar_url %>\" width=\"<%= options.imageSize %>px;\" alt=\"<%= contributor.name %>\"/><br /><sub><b><%= contributor.name %></b></sub></a><br /><%= contributor.contributions.map(c => `<%= c %>`).join('') %>",
+  "types": {
+    "code": {
+      "symbol": "💻",
+      "description": "Code",
+      "link": "[<%= symbol %>](<%= url %> \"<%= description %>\")"
+    },
+    "bug": {
+      "symbol": "🐛",
+      "description": "Bug reports",
+      "link": "[<%= symbol %>](<%= url %> \"<%= description %>\")"
+    },
+    "blog": {
+      "symbol": "📝",
+      "description": "Blogposts",
+      "link": "[<%= symbol %>](<%= url %> \"<%= description %>\")"
+    },
+    "business": {
+      "symbol": "💼",
+      "description": "Business development",
+      "link": "[<%= symbol %>](<%= url %> \"<%= description %>\")"
+    },
+    "content": {
+      "symbol": "🖋",
+      "description": "Content",
+      "link": "[<%= symbol %>](<%= url %> \"<%= description %>\")"
+    },
+    "design": {
+      "symbol": "🎨",
+      "description": "Design",
+      "link": "[<%= symbol %>](<%= url %> \"<%= description %>\")"
+    },
+    "doc": {
+      "symbol": "📖",
+      "description": "Documentation",
+      "link": "[<%= symbol %>](<%= url %> \"<%= description %>\")"
+    },
+    "example": {
+      "symbol": "💡",
+      "description": "Examples",
+      "link": "[<%= symbol %>](<%= url %> \"<%= description %>\")"
+    },
+    "financial": {
+      "symbol": "💵",
+      "description": "Financial",
+      "link": "[<%= symbol %>](<%= url %> \"<%= description %>\")"
+    },
+    "fundingFinding": {
+      "symbol": "🔍",
+      "description": "Funding Finding",
+      "link": "[<%= symbol %>](<%= url %> \"<%= description %>\")"
+    },
+    "ideas": {
+      "symbol": "🤔",
+      "description": "Ideas, Planning, & Feedback",
+      "link": "[<%= symbol %>](<%= url %> \"<%= description %>\")"
+    },
+    "infra": {
+      "symbol": "🚇",
+      "description": "Infrastructure",
+      "link": "[<%= symbol %>](<%= url %> \"<%= description %>\")"
+    },
+    "maintenance": {
+      "symbol": "🔧",
+      "description": "Maintenance",
+      "link": "[<%= symbol %>](<%= url %> \"<%= description %>\")"
+    },
+    "platform": {
+      "symbol": "📦",
+      "description": "Packaging/porting to new platform",
+      "link": "[<%= symbol %>](<%= url %> \"<%= description %>\")"
+    },
+    "plugin": {
+      "symbol": "🔌",
+      "description": "Plugin/utility libraries",
+      "link": "[<%= symbol %>](<%= url %> \"<%= description %>\")"
+    },
+    "projectManagement": {
+      "symbol": "📆",
+      "description": "Project Management",
+      "link": "[<%= symbol %>](<%= url %> \"<%= description %>\")"
+    },
+    "question": {
+      "symbol": "💬",
+      "description": "Answering Questions",
+      "link": "[<%= symbol %>](<%= url %> \"<%= description %>\")"
+    },
+    "review": {
+      "symbol": "👀",
+      "description": "Reviewed Pull Requests",
+      "link": "[<%= symbol %>](<%= url %> \"<%= description %>\")"
+    },
+    "security": {
+      "symbol": "🛡️",
+      "description": "Security",
+      "link": "[<%= symbol %>](<%= url %> \"<%= description %>\")"
+    },
+    "talk": {
+      "symbol": "📢",
+      "description": "Talks",
+      "link": "[<%= symbol %>](<%= url %> \"<%= description %>\")"
+    },
+    "test": {
+      "symbol": "⚠️",
+      "description": "Tests",
+      "link": "[<%= symbol %>](<%= url %> \"<%= description %>\")"
+    },
+    "tool": {
+      "symbol": "🔨",
+      "description": "Tools",
+      "link": "[<%= symbol %>](<%= url %> \"<%= description %>\")"
+    },
+    "translation": {
+      "symbol": "🌍",
+      "description": "Translation",
+      "link": "[<%= symbol %>](<%= url %> \"<%= description %>\")"
+    },
+    "tutorial": {
+      "symbol": "✅",
+      "description": "Tutorials",
+      "link": "[<%= symbol %>](<%= url %> \"<%= description %>\")"
+    },
+    "video": {
+      "symbol": "📹",
+      "description": "Videos",
+      "link": "[<%= symbol %>](<%= url %> \"<%= description %>\")"
+    }
+  },
+  "skipCi": true
+}
+
