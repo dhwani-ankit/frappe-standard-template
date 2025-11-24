@@ -2,9 +2,37 @@
 	"branches": ["main", "master"],
 	"plugins": [
 		["@semantic-release/commit-analyzer", {
-			"preset": "angular"
+			"preset": "angular",
+			"releaseRules": [
+				{ "type": "feat", "release": "minor" },
+				{ "type": "fix", "release": "patch" },
+				{ "type": "perf", "release": "patch" },
+				{ "type": "revert", "release": "patch" },
+				{ "breaking": true, "release": "major" }
+			]
 		}],
-		"@semantic-release/release-notes-generator",
+		["@semantic-release/release-notes-generator", {
+			"preset": "angular",
+			"presetConfig": {
+				"types": [
+					{ "type": "feat", "section": "✨ New Features" },
+					{ "type": "fix", "section": "🐛 Bug Fixes" },
+					{ "type": "perf", "section": "⚡ Performance Improvements" },
+					{ "type": "refactor", "section": "🔧 Refactoring" },
+					{ "type": "docs", "section": "📚 Documentation" },
+					{ "type": "style", "section": "💅 Code Style", "hidden": false },
+					{ "type": "chore", "section": "🔨 Chores", "hidden": false },
+					{ "type": "test", "section": "🧪 Tests", "hidden": false },
+					{ "type": "ci", "section": "👷 CI/CD", "hidden": false },
+					{ "type": "build", "section": "📦 Build", "hidden": false },
+					{ "type": "revert", "section": "⏪ Reverts" },
+					{ "type": "security", "section": "🔒 Security Fixes" }
+				]
+			},
+			"writerOpts": {
+				"commitsSort": ["subject", "scope"]
+			}
+		}],
 		[
 			"@semantic-release/exec", {
 				"prepareCmd": "python $GITHUB_WORKSPACE/.github/helper/update-version.py ${nextRelease.version}"
@@ -16,6 +44,9 @@
 				"message": "chore(release): Bumped to Version ${nextRelease.version}"
 			}
 		],
-		"@semantic-release/github"
+		["@semantic-release/github", {
+			"successComment": false,
+			"releasedLabels": false
+		}]
 	]
 }

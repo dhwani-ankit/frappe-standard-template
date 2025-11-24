@@ -36,7 +36,16 @@ Go to **Repository Settings** → **Secrets and variables** → **Actions** and 
 - `STAGING_URL` - Staging environment URL
 - `E2E_BASE_URL` - E2E test base URL
 
-### 3. Create Release Board
+### 3. Enable Repository Projects
+
+Before creating the board, ensure Projects are enabled:
+
+1. Go to **Settings** → **General**
+2. Scroll to **Features** section
+3. Enable **Projects** checkbox
+4. Click **Save changes**
+
+### 4. Create Release Board
 
 Run the board creation workflow:
 
@@ -46,7 +55,9 @@ Run the board creation workflow:
 
 This will create a GitHub Project board with columns aligned to the QC Plan workflow.
 
-### 4. Configure Branch Protection
+**Note**: If the board is not visible after creation, see [BOARD_VISIBILITY.md](./BOARD_VISIBILITY.md) for troubleshooting.
+
+### 5. Configure Branch Protection
 
 Follow the guide in [BRANCH_PROTECTION.md](./BRANCH_PROTECTION.md) to set up branch protection rules.
 
@@ -59,7 +70,7 @@ Follow the guide in [BRANCH_PROTECTION.md](./BRANCH_PROTECTION.md) to set up bra
    - ✅ Require status checks to pass
    - ✅ Require conversation resolution
 
-### 5. Test the Setup
+### 6. Test the Setup
 
 #### Test PR Template:
 1. Create a new branch

@@ -1,5 +1,53 @@
 # Pull Request
 
+## 📝 Release Notes
+
+<!-- 
+This section will be automatically extracted for release notes generation.
+Follow conventional commit format in your commit messages for best results.
+-->
+
+### Summary
+<!-- Brief one-line summary that will appear in release notes -->
+<!-- Example: "Add user authentication module with OAuth2 support" -->
+
+### Description
+<!-- Detailed description of changes - this will be included in release notes -->
+<!-- 
+Example:
+- Added new user authentication module
+- Implemented OAuth2 login flow
+- Added password reset functionality
+- Updated user profile management
+-->
+
+### Breaking Changes
+<!-- List any breaking changes - these will be highlighted in release notes -->
+- [ ] No breaking changes
+- [ ] Breaking changes (use `BREAKING CHANGE:` in commit message):
+  ```
+  [Describe breaking changes and migration steps]
+  
+  Example:
+  - API endpoint /v1/users changed to /v2/users
+  - Database schema migration required
+  - Environment variable AUTH_TOKEN renamed to API_TOKEN
+  ```
+
+### Impact
+<!-- Who/what is affected by this change? -->
+- **Affected Modules**: <!-- List modules/apps affected -->
+- **User Impact**: <!-- How does this affect end users? -->
+- **Performance Impact**: <!-- Any performance improvements/degradations? -->
+
+### Related PRs/Issues
+<!-- Link related PRs or issues for context -->
+- Related to #<!-- issue number -->
+- Closes #<!-- issue number -->
+- Part of #<!-- epic or feature issue --> 
+
+---
+
 ## 📋 Production Merge Readiness Checklist
 
 ### Level 1: Peer Review - Coding Standards and Business Logic
@@ -92,9 +140,6 @@
 ---
 
 ## 📝 PR Details
-
-### Description
-<!-- Provide a clear description of the changes -->
 
 ### Type of Change
 - [ ] 🐛 Bug fix

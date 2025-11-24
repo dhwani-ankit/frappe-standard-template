@@ -9,6 +9,7 @@ __PROJECT_DESCRIPTION__
 - [🛡️ QC Plan Integration](./docs/QC_PLAN_INTEGRATION.md) - Production Merge Readiness Checklist integration
 - [🔒 Branch Protection Setup](./docs/BRANCH_PROTECTION.md) - GitHub branch protection configuration
 - [📊 QC Plan Comparison](./QC_PLAN_COMPARISON.md) - Gap analysis and compliance matrix
+- [📋 Board Visibility Guide](./docs/BOARD_VISIBILITY.md) - Troubleshooting GitHub Project board visibility
 
 ## ⚡ Quick Start
 
