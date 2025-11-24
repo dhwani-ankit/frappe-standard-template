@@ -1,18 +1,18 @@
-name: Auto Fill PR Checklist
+name: Coding Standards Bot
 
 on:
   pull_request_review:
     types: [submitted, dismissed]
   pull_request:
-    types: [opened, synchronize, closed]
+    types: [opened, synchronize, closed, ready_for_review]
 
 permissions:
   contents: read
   pull-requests: write
 
 jobs:
-  update-checklist:
-    name: Auto Fill PR Checklist
+  coding-standards-bot:
+    name: Coding Standards Bot
     runs-on: ubuntu-latest
     
     steps:
@@ -197,7 +197,7 @@ jobs:
               console.log('ℹ️ No checklist updates needed');
             }
 
-      - name: Comment on PR with checklist status
+      - name: Coding Standards Bot Comment
         if: github.event_name == 'pull_request_review' && steps.review-info.outputs.has_approval == 'true'
         uses: actions/github-script@v7
         with:
@@ -207,18 +207,15 @@ jobs:
             const reviewer = '@${{ steps.review-info.outputs.reviewer }}';
             const reviewDate = '${{ steps.review-info.outputs.review_date }}';
             
-            const comment = `## ✅ QC Plan Checklist Updated
+            const comment = `## 🤖 Coding Standards Bot
 
-**Level 1.1 - Peer Review**: ✅ Completed
+✅ **Code Review Verified**
 - Reviewer: ${reviewer}
-- Review Date: ${reviewDate}
-
-**Level 1.2 - Comments Resolved**: ${{ steps.review-info.outputs.unresolved_comments == '0' ? '✅' : '⏳' }}
-
-The PR checklist has been automatically updated based on review status.
+- Date: ${reviewDate}
+- Comments Resolved: ${{ steps.review-info.outputs.unresolved_comments == '0' ? '✅ Yes' : '⏳ Pending' }}
 
 ---
-*This is an automated update from the QC Plan workflow*`;
+*Automated by Coding Standards Bot*`;
             
             await github.rest.issues.createComment({
               owner: context.repo.owner,

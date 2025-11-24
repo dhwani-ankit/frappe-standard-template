@@ -109,3 +109,28 @@ jobs:
       
       - name: Run pre-commit
         run: pre-commit run --all-files
+      
+      - name: Coding Standards Bot Comment
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const status = '${{ job.status }}' === 'success' ? '✅' : '❌';
+            
+            const comment = `## 🤖 Coding Standards Bot
+
+${status} **Pre-commit Checks**: ${'${{ job.status }}' === 'success' ? 'All passed' : 'Some failed'}
+
+**QC Plan Level 1.3**: ${'${{ job.status }}' === 'success' ? '✅ Complete' : '❌ Failed'}
+
+---
+*Automated by Coding Standards Bot*`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: comment
+            });
