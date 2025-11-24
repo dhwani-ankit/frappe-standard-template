@@ -41,12 +41,13 @@
 		[
 			"@semantic-release/git", {
 				"assets": ["*/__init__.py"],
-				"message": "chore(release): Bumped to Version ${nextRelease.version}"
+				"message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
 			}
 		],
 		["@semantic-release/github", {
 			"successComment": false,
-			"releasedLabels": false
+			"releasedLabels": false,
+			"assets": []
 		}]
 	]
 }

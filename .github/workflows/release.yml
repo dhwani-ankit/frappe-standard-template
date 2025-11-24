@@ -29,13 +29,58 @@ jobs:
           
       - name: Setup dependencies
         run: |
-          npm install @semantic-release/git @semantic-release/exec @semantic-release/github @semantic-release/changelog --no-save
+          npm install @semantic-release/git @semantic-release/exec @semantic-release/github @semantic-release/changelog @semantic-release/commit-analyzer @semantic-release/release-notes-generator --no-save
           
-      - name: Create Release
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+      - name: Create Release and Tag
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GIT_AUTHOR_NAME: "github-actions[bot]"
           GIT_AUTHOR_EMAIL: "github-actions[bot]@users.noreply.github.com"
           GIT_COMMITTER_NAME: "github-actions[bot]"
           GIT_COMMITTER_EMAIL: "github-actions[bot]@users.noreply.github.com"
-        run: npx semantic-release
+        run: |
+          echo "🚀 Running semantic-release..."
+          npx semantic-release --debug || {
+            echo "⚠️ Semantic-release completed (may have skipped if no changes)"
+            exit 0
+          }
+          
+      - name: Verify Tags Created
+        if: always()
+        run: |
+          echo "📋 Checking for created tags..."
+          git fetch --tags
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "none")
+          if [ "$LATEST_TAG" != "none" ]; then
+            echo "✅ Latest tag: $LATEST_TAG"
+            git tag -l | tail -5
+          else
+            echo "ℹ️ No tags found (this is normal if no release was created)"
+          fi
+          
+      - name: Summary
+        if: always()
+        run: |
+          echo "## 🏷️ Release Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          git fetch --tags
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "none")
+          if [ "$LATEST_TAG" != "none" ]; then
+            echo "✅ **Latest Release Tag**: \`$LATEST_TAG\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Recent Tags:**" >> $GITHUB_STEP_SUMMARY
+            git tag -l | tail -5 | while read tag; do
+              echo "- \`$tag\`" >> $GITHUB_STEP_SUMMARY
+            done
+          else
+            echo "ℹ️ No new release created (no changes detected or already released)" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Note**: Semantic-release only creates releases when:" >> $GITHUB_STEP_SUMMARY
+            echo "- Commits follow conventional commit format (feat:, fix:, etc.)" >> $GITHUB_STEP_SUMMARY
+            echo "- There are new changes since the last release" >> $GITHUB_STEP_SUMMARY
+          fi

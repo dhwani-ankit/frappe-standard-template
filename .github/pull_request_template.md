@@ -53,8 +53,8 @@ Example:
 ### Level 1: Peer Review - Coding Standards and Business Logic
 
 - [ ] **1.1** Code reviewed by at least one peer (preferably senior)
-  - Reviewer: @________________
-  - Review Date: ________________
+  - Reviewer: <!-- AUTO-FILLED: @reviewer -->
+  - Review Date: <!-- AUTO-FILLED: YYYY-MM-DD -->
 
 - [ ] **1.2** All reviewer comments resolved and approved
   - [ ] All comments addressed

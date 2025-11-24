@@ -10,6 +10,7 @@ __PROJECT_DESCRIPTION__
 - [🔒 Branch Protection Setup](./docs/BRANCH_PROTECTION.md) - GitHub branch protection configuration
 - [📊 QC Plan Comparison](./QC_PLAN_COMPARISON.md) - Gap analysis and compliance matrix
 - [📋 Board Visibility Guide](./docs/BOARD_VISIBILITY.md) - Troubleshooting GitHub Project board visibility
+- [🏷️ Release Tags Guide](./docs/RELEASE_TAGS.md) - How release tags are automatically created
 
 ## ⚡ Quick Start
 
