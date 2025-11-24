@@ -1,0 +1,230 @@
+name: Update Release Board
+
+on:
+  issues:
+    types: [opened, labeled, closed]
+  pull_request:
+    types: [opened, synchronize, closed, labeled]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+  repository-projects: write
+
+jobs:
+  update-board:
+    name: Update Release Board
+    runs-on: ubuntu-latest
+    if: |
+      (github.event.issue.labels.*.name == 'release-request' || contains(github.event.issue.title, 'Release Request')) ||
+      (github.event.pull_request && (contains(github.event.pull_request.labels.*.name, 'release') || contains(github.event.pull_request.title, 'release')))
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Find Release Board
+        id: find-board
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            try {
+              const projects = await github.rest.projects.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+              });
+              
+              const board = projects.data.find(
+                p => p.name === 'DevOps Release Board' || p.name === 'Release Tracking Board'
+              );
+              
+              if (board) {
+                core.setOutput('board_id', board.id.toString());
+                core.setOutput('board_url', board.html_url);
+                console.log(`✅ Found board: ${board.html_url}`);
+              } else {
+                console.log('⚠️ Board not found. Run create-release-board workflow first.');
+                core.setFailed('Release board not found');
+              }
+            } catch (error) {
+              console.log('⚠️ Error finding board:', error.message);
+              core.setFailed('Could not find release board');
+            }
+
+      - name: Get Board Columns
+        id: get-columns
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const boardId = parseInt('${{ steps.find-board.outputs.board_id }}');
+            
+            const columns = await github.rest.projects.listColumns({
+              project_id: boardId,
+            });
+            
+            const columnMap = {};
+            for (const col of columns.data) {
+              // Map column names to IDs (handle emoji variations)
+              const name = col.name.toLowerCase();
+              if (name.includes('backlog')) columnMap['backlog'] = col.id;
+              if (name.includes('ready for development')) columnMap['ready'] = col.id;
+              if (name.includes('in progress')) columnMap['in_progress'] = col.id;
+              if (name.includes('pr raised')) columnMap['pr_raised'] = col.id;
+              if (name.includes('in review')) columnMap['in_review'] = col.id;
+              if (name.includes('qa certification')) columnMap['qa'] = col.id;
+              if (name.includes('staging deployment')) columnMap['staging'] = col.id;
+              if (name.includes('release authorization')) columnMap['authorization'] = col.id;
+              if (name.includes('production deployment')) columnMap['production'] = col.id;
+              if (name.includes('done')) columnMap['done'] = col.id;
+            }
+            
+            core.setOutput('columns', JSON.stringify(columnMap));
+            console.log('✅ Found columns:', Object.keys(columnMap).join(', '));
+
+      - name: Determine Issue/PR and Status
+        id: determine-status
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            let issueNumber, targetColumn;
+            
+            if (context.payload.issue) {
+              issueNumber = context.payload.issue.number;
+              const labels = context.payload.issue.labels.map(l => l.name);
+              const state = context.payload.issue.state;
+              
+              // Determine column based on issue state and labels
+              if (labels.includes('release-request')) {
+                if (state === 'closed') {
+                  targetColumn = 'done';
+                } else if (labels.includes('approved')) {
+                  targetColumn = 'authorization';
+                } else if (labels.includes('qa-certified')) {
+                  targetColumn = 'qa';
+                } else {
+                  targetColumn = 'backlog';
+                }
+              }
+            } else if (context.payload.pull_request) {
+              issueNumber = context.payload.pull_request.number;
+              const state = context.payload.pull_request.state;
+              const merged = context.payload.pull_request.merged;
+              const labels = context.payload.pull_request.labels.map(l => l.name);
+              
+              if (merged && state === 'closed') {
+                // Check if it's merged to main/master (production) or develop (staging)
+                const baseRef = context.payload.pull_request.base.ref;
+                if (baseRef === 'main' || baseRef === 'master') {
+                  targetColumn = 'production';
+                } else {
+                  targetColumn = 'staging';
+                }
+              } else if (state === 'open') {
+                // Check if PR has reviews
+                const reviews = await github.rest.pulls.listReviews({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: issueNumber,
+                });
+                
+                if (reviews.data.length > 0) {
+                  targetColumn = 'in_review';
+                } else {
+                  targetColumn = 'pr_raised';
+                }
+              } else {
+                targetColumn = 'backlog';
+              }
+            }
+            
+            core.setOutput('issue_number', issueNumber.toString());
+            core.setOutput('target_column', targetColumn || 'backlog');
+            console.log(`📋 Issue/PR #${issueNumber} → Column: ${targetColumn}`);
+
+      - name: Add Card to Board
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const boardId = parseInt('${{ steps.find-board.outputs.board_id }}');
+            const columns = JSON.parse('${{ steps.get-columns.outputs.columns }}');
+            const issueNumber = parseInt('${{ steps.determine-status.outputs.issue_number }}');
+            const targetColumn = '${{ steps.determine-status.outputs.target_column }}';
+            
+            let columnId = columns[targetColumn];
+            if (!columnId) {
+              console.log(`⚠️ Column '${targetColumn}' not found. Using backlog.`);
+              // Use first column as fallback
+              const allColumns = await github.rest.projects.listColumns({
+                project_id: boardId,
+              });
+              if (allColumns.data.length > 0) {
+                columnId = allColumns.data[0].id;
+              } else {
+                core.setFailed('No columns found in board');
+                return;
+              }
+            }
+            
+            try {
+              // Check if card already exists
+              const cards = await github.rest.projects.listCards({
+                column_id: columnId,
+              });
+              
+              const existingCard = cards.data.find(card => {
+                return card.content_url && card.content_url.includes(`/issues/${issueNumber}`);
+              });
+              
+              if (existingCard) {
+                // Move card to new column if needed
+                if (existingCard.column_url.includes(columnId.toString())) {
+                  console.log(`✅ Card already in correct column`);
+                } else {
+                  await github.rest.projects.moveCard({
+                    card_id: existingCard.id,
+                    position: 'top',
+                    column_id: columnId,
+                  });
+                  console.log(`✅ Moved card to ${targetColumn} column`);
+                }
+              } else {
+                // Create new card
+                await github.rest.projects.createCard({
+                  column_id: columnId,
+                  content_id: issueNumber,
+                  content_type: 'Issue',
+                });
+                console.log(`✅ Created card in ${targetColumn} column`);
+              }
+            } catch (error) {
+              console.log(`⚠️ Error managing card: ${error.message}`);
+              // Try with PR if issue failed
+              if (context.payload.pull_request) {
+                try {
+                  await github.rest.projects.createCard({
+                    column_id: columnId,
+                    content_id: issueNumber,
+                    content_type: 'PullRequest',
+                  });
+                  console.log(`✅ Created PR card in ${targetColumn} column`);
+                } catch (prError) {
+                  console.log(`⚠️ Error creating PR card: ${prError.message}`);
+                }
+              }
+            }
+
+      - name: Summary
+        run: |
+          echo "## 📊 Board Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Updated release board with issue/PR #${{ steps.determine-status.outputs.issue_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Target Column**: ${{ steps.determine-status.outputs.target_column }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 [View Board](${{ steps.find-board.outputs.board_url }})" >> $GITHUB_STEP_SUMMARY
+
