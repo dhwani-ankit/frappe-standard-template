@@ -12,6 +12,8 @@ __PROJECT_DESCRIPTION__
 - [📋 Board Visibility Guide](./docs/BOARD_VISIBILITY.md) - Troubleshooting GitHub Project board visibility
 - [🏷️ Release Tags Guide](./docs/RELEASE_TAGS.md) - How release tags are automatically created
 - [📝 Release Notes Troubleshooting](./docs/RELEASE_NOTES_TROUBLESHOOTING.md) - Fix release notes issues
+- [🤖 How to Run Bots](./docs/HOW_TO_RUN_BOTS.md) - Guide to test and run automated bots
+- [⚡ Bot Quick Start](./docs/BOT_QUICK_START.md) - 2-minute quick test guide
 
 ## ⚡ Quick Start
 
@@ -178,6 +180,30 @@ bench --site development.localhost install-app __APP_NAME__
 bench start
 ```
 
+
+## 🤖 Automated Bots
+
+All QC Plan checks are automatically verified by bots - no manual checkboxes needed!
+
+### Available Bots
+
+- **QC Plan Bot** - Checks Level 1 & Level 2 compliance automatically
+- **Coding Standards Bot** - Validates code reviews and standards
+- **Staging Deployment Bot** - Monitors deployment status
+- **E2E Test Bot** - Runs and reports test results
+- **Pre-commit Bot** - Validates code quality
+
+### How They Work
+
+1. **Create PR** - Bots automatically run
+2. **Review Code** - Bots detect approval
+3. **Deploy to Staging** - Bots track deployment
+4. **Run Tests** - Bots report results
+5. **Status Updates** - Bots post comments automatically
+
+**No manual checklist needed** - bots handle everything!
+
+See [Bot Quick Start](./docs/BOT_QUICK_START.md) to test them.
 
 ## 🚀 Release Process
 

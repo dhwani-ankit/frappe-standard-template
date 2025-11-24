@@ -5,6 +5,12 @@ on:
     workflows: ["Staging Deployment"]
     types: [completed]
   deployment_status:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR Number (optional)'
+        required: false
+        type: string
 
 permissions:
   contents: read
