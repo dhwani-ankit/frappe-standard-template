@@ -11,6 +11,7 @@ __PROJECT_DESCRIPTION__
 - [📊 QC Plan Comparison](./QC_PLAN_COMPARISON.md) - Gap analysis and compliance matrix
 - [📋 Board Visibility Guide](./docs/BOARD_VISIBILITY.md) - Troubleshooting GitHub Project board visibility
 - [🏷️ Release Tags Guide](./docs/RELEASE_TAGS.md) - How release tags are automatically created
+- [📝 Release Notes Troubleshooting](./docs/RELEASE_NOTES_TROUBLESHOOTING.md) - Fix release notes issues
 
 ## ⚡ Quick Start
 
