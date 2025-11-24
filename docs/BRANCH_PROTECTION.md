@@ -22,6 +22,7 @@ This document outlines the recommended GitHub branch protection rules to enforce
 3. **Require status checks to pass before merging**
    - ✅ Enable
    - Required status checks:
+     - `🔧 DevOps Checklist (Required)` ⚠️ **REQUIRED** - Blocks merge until all DevOps items pass
      - `commit-lint` (Semantic Commits)
      - `docs-required` (Documentation Required)
      - `linter` (Semgrep Rules)
@@ -29,6 +30,8 @@ This document outlines the recommended GitHub branch protection rules to enforce
      - `e2e-tests` (E2E Tests)
      - `staging-deployment` (Staging Deployment)
    - Require branches to be up to date before merging: **Enabled**
+   
+   **Important**: The `🔧 DevOps Checklist (Required)` check is automatically created by the DevOps Checklist Bot and **must be required** to block merges. See [DevOps Branch Protection](./BRANCH_PROTECTION_DEVOPS.md) for details.
 
 4. **Require conversation resolution before merging**
    - ✅ Enable
@@ -53,6 +56,7 @@ This document outlines the recommended GitHub branch protection rules to enforce
 2. **Require status checks to pass before merging**
    - ✅ Enable
    - Required status checks:
+     - `🔧 DevOps Checklist (Required)` ⚠️ **REQUIRED**
      - `commit-lint`
      - `docs-required`
      - `linter`
@@ -84,14 +88,15 @@ curl -X PUT \
   -d '{
     "required_status_checks": {
       "strict": true,
-      "contexts": [
-        "commit-lint",
-        "docs-required",
-        "linter",
-        "precommit",
-        "e2e-tests",
-        "staging-deployment"
-      ]
+        "contexts": [
+          "🔧 DevOps Checklist (Required)",
+          "commit-lint",
+          "docs-required",
+          "linter",
+          "precommit",
+          "e2e-tests",
+          "staging-deployment"
+        ]
     },
     "enforce_admins": false,
     "required_pull_request_reviews": {
@@ -117,6 +122,7 @@ resource "github_branch_protection" "main" {
   required_status_checks {
     strict   = true
     contexts = [
+      "🔧 DevOps Checklist (Required)",
       "commit-lint",
       "docs-required",
       "linter",
