@@ -1,0 +1,89 @@
+{{#if @root.linkReferences~}}
+  {{#each releases}}
+    {{#if @first}}
+      ## {{title}}
+
+      {{#if summary}}
+        {{summary}}
+      {{/if}}
+
+      {{#if releases}}
+        {{#each releases}}
+          ### {{title}}
+
+          {{#if commits}}
+            {{#each commits}}
+              - {{#if breaking}}**BREAKING:** {{/if}}{{subject}}{{#if issues}} ({{#each issues}}{{#if @first}}{{#if ../owner}}[{{../owner}}/{{../name}}]({{../url}}){{else}}{{name}}{{/if}}#{{number}}{{/if}}{{/each}}){{/if}}
+            {{/each}}
+          {{/if}}
+
+          {{#if fixes}}
+            ### 🐛 Bug Fixes
+            {{#each fixes}}
+              - {{commit.subject}}{{#if issues}} ({{#each issues}}{{#if @first}}{{#if ../owner}}[{{../owner}}/{{../name}}]({{../url}}){{else}}{{name}}{{/if}}#{{number}}{{/if}}{{/each}}){{/if}}
+            {{/each}}
+          {{/if}}
+
+          {{#if features}}
+            ### ✨ New Features
+            {{#each features}}
+              - {{commit.subject}}{{#if issues}} ({{#each issues}}{{#if @first}}{{#if ../owner}}[{{../owner}}/{{../name}}]({{../url}}){{else}}{{name}}{{/if}}#{{number}}{{/if}}{{/each}}){{/if}}
+            {{/each}}
+          {{/if}}
+
+          {{#if performance}}
+            ### ⚡ Performance Improvements
+            {{#each performance}}
+              - {{commit.subject}}{{#if issues}} ({{#each issues}}{{#if @first}}{{#if ../owner}}[{{../owner}}/{{../name}}]({{../url}}){{else}}{{name}}{{/if}}#{{number}}{{/if}}{{/each}}){{/if}}
+            {{/each}}
+          {{/if}}
+
+          {{#if security}}
+            ### 🔒 Security Fixes
+            {{#each security}}
+              - {{commit.subject}}{{#if issues}} ({{#each issues}}{{#if @first}}{{#if ../owner}}[{{../owner}}/{{../name}}]({{../url}}){{else}}{{name}}{{/if}}#{{number}}{{/if}}{{/each}}){{/if}}
+            {{/each}}
+          {{/if}}
+
+          {{#if documentation}}
+            ### 📚 Documentation
+            {{#each documentation}}
+              - {{commit.subject}}{{#if issues}} ({{#each issues}}{{#if @first}}{{#if ../owner}}[{{../owner}}/{{../name}}]({{../url}}){{else}}{{name}}{{/if}}#{{number}}{{/if}}{{/each}}){{/if}}
+            {{/each}}
+          {{/if}}
+
+          {{#if refactor}}
+            ### 🔧 Refactoring
+            {{#each refactor}}
+              - {{commit.subject}}{{#if issues}} ({{#each issues}}{{#if @first}}{{#if ../owner}}[{{../owner}}/{{../name}}]({{../url}}){{else}}{{name}}{{/if}}#{{number}}{{/if}}{{/each}}){{/if}}
+            {{/each}}
+          {{/if}}
+
+        {{/each}}
+      {{/if}}
+    {{/if}}
+  {{/each}}
+{{else}}
+  {{#each releases}}
+    {{#if @first}}
+      ## {{title}}
+
+      {{#if summary}}
+        {{summary}}
+      {{/if}}
+
+      {{#if releases}}
+        {{#each releases}}
+          ### {{title}}
+
+          {{#if commits}}
+            {{#each commits}}
+              - {{#if breaking}}**BREAKING:** {{/if}}{{subject}}
+            {{/each}}
+          {{/if}}
+        {{/each}}
+      {{/if}}
+    {{/if}}
+  {{/each}}
+{{/if}}
+
