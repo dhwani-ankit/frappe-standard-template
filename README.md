@@ -16,6 +16,7 @@ __PROJECT_DESCRIPTION__
 - [⚡ Bot Quick Start](./docs/BOT_QUICK_START.md) - 2-minute quick test guide
 - [🎯 GitHub Integrations](./docs/GITHUB_INTEGRATIONS.md) - All Contributors, Kodiak, Codecov setup
 - [⚡ Integrations Quick Setup](./docs/INTEGRATIONS_SETUP.md) - 5-minute setup guide
+- [🔧 DevOps Checklist](./docs/DEVOPS_CHECKLIST.md) - Non-editable automated DevOps checklist
 - [🎯 GitHub Integrations](./docs/GITHUB_INTEGRATIONS.md) - All Contributors, Kodiak, Codecov setup
 
 ## ⚡ Quick Start
