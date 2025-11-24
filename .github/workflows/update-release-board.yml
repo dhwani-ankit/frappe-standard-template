@@ -25,65 +25,128 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Find Release Board
+      - name: Find or Create Release Board
         id: find-board
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             try {
+              // Try to find existing board
               const projects = await github.rest.projects.listForRepo({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
               });
               
-              const board = projects.data.find(
+              let board = projects.data.find(
                 p => p.name === 'DevOps Release Board' || p.name === 'Release Tracking Board'
               );
               
               if (board) {
                 core.setOutput('board_id', board.id.toString());
                 core.setOutput('board_url', board.html_url);
-                console.log(`✅ Found board: ${board.html_url}`);
+                core.setOutput('board_exists', 'true');
+                console.log(`✅ Found existing board: ${board.html_url}`);
               } else {
-                console.log('⚠️ Board not found. Run create-release-board workflow first.');
-                core.setFailed('Release board not found');
+                // Board doesn't exist, create it
+                console.log('📋 Board not found. Creating new board...');
+                
+                const columns = [
+                  "📋 Backlog",
+                  "🚀 Ready for Development",
+                  "⚙️ In Progress",
+                  "🔍 PR Raised",
+                  "👀 In Review",
+                  "✅ QA Certification",
+                  "🚀 Staging Deployment",
+                  "📝 Release Authorization",
+                  "🌐 Production Deployment",
+                  "✅ Done"
+                ];
+                
+                board = await github.rest.projects.createForRepo({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: "DevOps Release Board",
+                  body: `Release tracking board aligned with QC Plan workflow.
+
+This board tracks releases through the three-level validation process:
+- Level 1: Peer Review (In Review column)
+- Level 2: QA Certification (QA Certification column)
+- Level 3: Release Authorization (Release Authorization column)
+
+Each release request is automatically tracked with a unique Request ID.`
+                });
+                
+                console.log(`✅ Created new board: ${board.data.html_url}`);
+                
+                // Create columns
+                for (const col of columns) {
+                  try {
+                    await github.rest.projects.createColumn({
+                      project_id: board.data.id,
+                      name: col
+                    });
+                    console.log(`  ✅ Created column: ${col}`);
+                  } catch (colError) {
+                    console.log(`  ⚠️ Error creating column ${col}: ${colError.message}`);
+                  }
+                }
+                
+                core.setOutput('board_id', board.data.id.toString());
+                core.setOutput('board_url', board.data.html_url);
+                core.setOutput('board_exists', 'false');
+                console.log('✅ Board setup complete!');
               }
             } catch (error) {
-              console.log('⚠️ Error finding board:', error.message);
-              core.setFailed('Could not find release board');
+              console.log('⚠️ Error with board:', error.message);
+              console.log('💡 Tip: Ensure Projects are enabled in Repository Settings → General → Features');
+              // Don't fail the workflow, just log the error
+              core.setOutput('board_exists', 'false');
+              core.setOutput('board_id', '');
+              core.setOutput('board_url', '');
             }
 
       - name: Get Board Columns
         id: get-columns
+        if: steps.find-board.outputs.board_exists == 'true'
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const boardId = parseInt('${{ steps.find-board.outputs.board_id }}');
-            
-            const columns = await github.rest.projects.listColumns({
-              project_id: boardId,
-            });
-            
-            const columnMap = {};
-            for (const col of columns.data) {
-              // Map column names to IDs (handle emoji variations)
-              const name = col.name.toLowerCase();
-              if (name.includes('backlog')) columnMap['backlog'] = col.id;
-              if (name.includes('ready for development')) columnMap['ready'] = col.id;
-              if (name.includes('in progress')) columnMap['in_progress'] = col.id;
-              if (name.includes('pr raised')) columnMap['pr_raised'] = col.id;
-              if (name.includes('in review')) columnMap['in_review'] = col.id;
-              if (name.includes('qa certification')) columnMap['qa'] = col.id;
-              if (name.includes('staging deployment')) columnMap['staging'] = col.id;
-              if (name.includes('release authorization')) columnMap['authorization'] = col.id;
-              if (name.includes('production deployment')) columnMap['production'] = col.id;
-              if (name.includes('done')) columnMap['done'] = col.id;
+            if (!boardId) {
+              core.setOutput('columns', '{}');
+              return;
             }
             
-            core.setOutput('columns', JSON.stringify(columnMap));
-            console.log('✅ Found columns:', Object.keys(columnMap).join(', '));
+            try {
+              const columns = await github.rest.projects.listColumns({
+                project_id: boardId,
+              });
+              
+              const columnMap = {};
+              for (const col of columns.data) {
+                // Map column names to IDs (handle emoji variations)
+                const name = col.name.toLowerCase();
+                if (name.includes('backlog')) columnMap['backlog'] = col.id;
+                if (name.includes('ready for development')) columnMap['ready'] = col.id;
+                if (name.includes('in progress')) columnMap['in_progress'] = col.id;
+                if (name.includes('pr raised')) columnMap['pr_raised'] = col.id;
+                if (name.includes('in review')) columnMap['in_review'] = col.id;
+                if (name.includes('qa certification')) columnMap['qa'] = col.id;
+                if (name.includes('staging deployment')) columnMap['staging'] = col.id;
+                if (name.includes('release authorization')) columnMap['authorization'] = col.id;
+                if (name.includes('production deployment')) columnMap['production'] = col.id;
+                if (name.includes('done')) columnMap['done'] = col.id;
+              }
+              
+              core.setOutput('columns', JSON.stringify(columnMap));
+              console.log('✅ Found columns:', Object.keys(columnMap).join(', '));
+            } catch (error) {
+              console.log('⚠️ Error getting columns:', error.message);
+              core.setOutput('columns', '{}');
+            }
 
       - name: Determine Issue/PR and Status
         id: determine-status
@@ -183,12 +246,23 @@ jobs:
             console.log(`📋 ${contentType} #${issueNumber} → Column: ${targetColumn}`);
 
       - name: Add Card to Board
+        if: steps.find-board.outputs.board_exists == 'true' && steps.get-columns.outputs.columns != '{}'
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const boardId = parseInt('${{ steps.find-board.outputs.board_id }}');
-            const columns = JSON.parse('${{ steps.get-columns.outputs.columns }}');
+            if (!boardId) {
+              console.log('⚠️ No board ID available');
+              return;
+            }
+            
+            const columns = JSON.parse('${{ steps.get-columns.outputs.columns }}' || '{}');
+            if (Object.keys(columns).length === 0) {
+              console.log('⚠️ No columns found');
+              return;
+            }
+            
             const issueNumber = parseInt('${{ steps.determine-status.outputs.issue_number }}');
             const targetColumn = '${{ steps.determine-status.outputs.target_column }}';
             
@@ -196,13 +270,18 @@ jobs:
             if (!columnId) {
               console.log(`⚠️ Column '${targetColumn}' not found. Using backlog.`);
               // Use first column as fallback
-              const allColumns = await github.rest.projects.listColumns({
-                project_id: boardId,
-              });
-              if (allColumns.data.length > 0) {
-                columnId = allColumns.data[0].id;
-              } else {
-                core.setFailed('No columns found in board');
+              try {
+                const allColumns = await github.rest.projects.listColumns({
+                  project_id: boardId,
+                });
+                if (allColumns.data.length > 0) {
+                  columnId = allColumns.data[0].id;
+                } else {
+                  console.log('⚠️ No columns found in board');
+                  return;
+                }
+              } catch (err) {
+                console.log('⚠️ Error getting columns:', err.message);
                 return;
               }
             }
@@ -263,6 +342,14 @@ jobs:
               console.log(`⚠️ Error managing card: ${error.message}`);
               // Don't fail the workflow, just log the error
             }
+      
+      - name: Skip board update if not available
+        if: steps.find-board.outputs.board_exists != 'true'
+        run: |
+          echo "⚠️ Board not available. Skipping board update."
+          echo "💡 To enable board tracking:"
+          echo "   1. Enable Projects in Repository Settings → General → Features"
+          echo "   2. Run the 'Auto Create Release Board' workflow"
 
       - name: Summary
         run: |
