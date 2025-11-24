@@ -53,3 +53,13 @@ jspm_packages/
 
 # Aider AI Chat
 .aider*
+
+# Release Request artifacts (tracked in git but sensitive data excluded)
+.github/release-requests/*.json
+.github/release-requests/*-rollback.sh
+
+# E2E test results
+e2e-results.json
+e2e-results.xml
+playwright-report/
+test-results/
